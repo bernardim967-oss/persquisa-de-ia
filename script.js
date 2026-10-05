@@ -1,224 +1,404 @@
 /* =========================================================
    BETINHA ❤️
-   Sistema de conversa, login e histórico
-   ========================================================= */
+   SCRIPT.JS
 
-const STORAGE_USER = "betinha_usuario";
-const STORAGE_CHATS = "betinha_chats";
-const STORAGE_CURRENT = "betinha_chat_atual";
+   Este arquivo funciona junto com:
+   index.html
+   style.css
+========================================================= */
+
+
+/* =========================================================
+   CONFIGURAÇÃO
+========================================================= */
+
+const USER_KEY = "betinha_usuario";
+const CHATS_KEY = "betinha_chats";
+const CURRENT_CHAT_KEY = "betinha_chat_atual";
+
 
 /* =========================================================
    ELEMENTOS
-   ========================================================= */
+========================================================= */
 
-const loginScreen = document.getElementById("login-screen");
-const app = document.getElementById("app");
+const introScreen =
+    document.getElementById("intro-screen");
 
-const loginForm = document.getElementById("login-form");
-const usernameInput = document.getElementById("username");
-const passwordInput = document.getElementById("password");
+const loginScreen =
+    document.getElementById("login-screen");
 
-const userNameDisplay = document.getElementById("user-name");
-const logoutButton = document.getElementById("logout");
+const app =
+    document.getElementById("app");
 
-const newChatButton = document.getElementById("new-chat");
-const chatList = document.getElementById("chat-list");
+const loginForm =
+    document.getElementById("login-form");
 
-const messagesContainer = document.getElementById("messages");
-const messageInput = document.getElementById("message-input");
-const sendButton = document.getElementById("send-button");
+const usernameInput =
+    document.getElementById("username");
+
+const sidebarUsername =
+    document.getElementById("sidebar-username");
+
+const userAvatar =
+    document.getElementById("user-avatar");
+
+const messages =
+    document.getElementById("messages");
+
+const messageForm =
+    document.getElementById("message-form");
+
+const messageInput =
+    document.getElementById("message-input");
+
+const typingIndicator =
+    document.getElementById("typing-indicator");
+
+const chatHistory =
+    document.getElementById("chat-history");
+
+const sidebar =
+    document.getElementById("sidebar");
+
+const newChatButton =
+    document.getElementById("new-chat");
+
+const headerNewChat =
+    document.getElementById("header-new-chat");
+
+const openSidebarButton =
+    document.getElementById("open-sidebar");
+
+const closeSidebarButton =
+    document.getElementById("close-sidebar");
+
+const logoutButton =
+    document.getElementById("logout-button");
+
+
+/* MODAL */
+
+const newChatModal =
+    document.getElementById("new-chat-modal");
+
+const closeModalButton =
+    document.getElementById("close-modal");
+
+const cancelNewChatButton =
+    document.getElementById("cancel-new-chat");
+
+const confirmNewChatButton =
+    document.getElementById("confirm-new-chat");
+
 
 /* =========================================================
    DADOS
-   ========================================================= */
+========================================================= */
 
-let usuario = localStorage.getItem(STORAGE_USER);
+let usuario =
+    localStorage.getItem(USER_KEY);
 
-let chats = JSON.parse(
-    localStorage.getItem(STORAGE_CHATS) || "[]"
-);
+let chats =
+    carregarChats();
 
-let chatAtual = localStorage.getItem(STORAGE_CURRENT);
+let chatAtual =
+    localStorage.getItem(CURRENT_CHAT_KEY);
+
 
 /* =========================================================
    INICIALIZAÇÃO
-   ========================================================= */
+========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener(
+    "DOMContentLoaded",
+    iniciar
+);
 
-    if (usuario) {
-        entrarNoSite();
-    } else {
-        mostrarLogin();
-    }
+
+function iniciar() {
 
     configurarEventos();
-});
+
+    /*
+       A intro fica alguns segundos.
+       Depois mostramos login ou aplicativo.
+    */
+
+    setTimeout(() => {
+
+        if (usuario) {
+
+            mostrarAplicativo();
+
+        } else {
+
+            mostrarLogin();
+
+        }
+
+    }, 3900);
+}
 
 
 /* =========================================================
    EVENTOS
-   ========================================================= */
+========================================================= */
 
 function configurarEventos() {
 
-    if (loginForm) {
-        loginForm.addEventListener("submit", fazerLogin);
-    }
+    /* LOGIN */
 
-    if (logoutButton) {
-        logoutButton.addEventListener("click", sair);
-    }
+    loginForm.addEventListener(
+        "submit",
+        fazerLogin
+    );
 
-    if (newChatButton) {
-        newChatButton.addEventListener("click", criarNovoChat);
-    }
 
-    if (sendButton) {
-        sendButton.addEventListener("click", enviarMensagem);
-    }
+    /* CHAT */
 
-    if (messageInput) {
+    messageForm.addEventListener(
+        "submit",
+        enviarMensagem
+    );
 
-        messageInput.addEventListener("keydown", function(event) {
 
-            if (event.key === "Enter" && !event.shiftKey) {
+    /* NOVO CHAT */
+
+    newChatButton.addEventListener(
+        "click",
+        abrirModalNovoChat
+    );
+
+    headerNewChat.addEventListener(
+        "click",
+        abrirModalNovoChat
+    );
+
+
+    /* MODAL */
+
+    closeModalButton.addEventListener(
+        "click",
+        fecharModalNovoChat
+    );
+
+    cancelNewChatButton.addEventListener(
+        "click",
+        fecharModalNovoChat
+    );
+
+    confirmNewChatButton.addEventListener(
+        "click",
+        confirmarNovoChat
+    );
+
+
+    /* SIDEBAR */
+
+    openSidebarButton.addEventListener(
+        "click",
+        () => {
+            sidebar.classList.add("open");
+        }
+    );
+
+    closeSidebarButton.addEventListener(
+        "click",
+        () => {
+            sidebar.classList.remove("open");
+        }
+    );
+
+
+    /* LOGOUT */
+
+    logoutButton.addEventListener(
+        "click",
+        sair
+    );
+
+
+    /* ENTER */
+
+    messageInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
 
                 event.preventDefault();
 
-                enviarMensagem();
+                messageForm.requestSubmit();
             }
-        });
-    }
+
+        }
+    );
+
+
+    /* ALTURA DO TEXTAREA */
+
+    messageInput.addEventListener(
+        "input",
+        ajustarTextarea
+    );
 }
 
 
 /* =========================================================
    LOGIN
-   ========================================================= */
+========================================================= */
 
 function fazerLogin(event) {
 
     event.preventDefault();
 
-    const nome = usernameInput
-        ? usernameInput.value.trim()
-        : "";
+    const nome =
+        usernameInput.value.trim();
 
-    const senha = passwordInput
-        ? passwordInput.value
-        : "";
+    if (!nome) {
 
-    if (!nome || !senha) {
-
-        alert("Digite seu nome e sua senha.");
+        usernameInput.focus();
 
         return;
     }
 
-    /*
-       Por enquanto o login é local.
-
-       Depois podemos colocar um sistema de conta
-       verdadeiro com banco de dados.
-    */
-
     usuario = nome;
 
     localStorage.setItem(
-        STORAGE_USER,
+        USER_KEY,
         usuario
     );
 
-    entrarNoSite();
-}
-
-
-/* =========================================================
-   ENTRAR NO SITE
-   ========================================================= */
-
-function entrarNoSite() {
-
-    if (loginScreen) {
-        loginScreen.style.display = "none";
-    }
-
-    if (app) {
-        app.style.display = "flex";
-    }
-
-    if (userNameDisplay) {
-        userNameDisplay.textContent = usuario;
-    }
-
-    carregarChats();
-
-    if (chats.length === 0) {
-
-        criarNovoChat();
-
-    } else {
-
-        let encontrado = chats.find(
-            chat => chat.id === chatAtual
-        );
-
-        if (!encontrado) {
-            encontrado = chats[0];
-            chatAtual = encontrado.id;
-        }
-
-        abrirChat(encontrado.id);
-    }
+    mostrarAplicativo();
 }
 
 
 /* =========================================================
    MOSTRAR LOGIN
-   ========================================================= */
+========================================================= */
 
 function mostrarLogin() {
 
-    if (loginScreen) {
-        loginScreen.style.display = "flex";
+    loginScreen.classList.remove("hidden");
+
+    app.classList.add("hidden");
+}
+
+
+/* =========================================================
+   MOSTRAR APLICATIVO
+========================================================= */
+
+function mostrarAplicativo() {
+
+    loginScreen.classList.add("hidden");
+
+    app.classList.remove("hidden");
+
+
+    /* Nome */
+
+    sidebarUsername.textContent =
+        usuario || "Usuário";
+
+
+    /* Avatar */
+
+    if (usuario) {
+
+        userAvatar.textContent =
+            usuario
+                .charAt(0)
+                .toUpperCase();
+
     }
 
-    if (app) {
-        app.style.display = "none";
+
+    /*
+       Se ainda não existir nenhuma conversa,
+       criamos automaticamente.
+    */
+
+    if (chats.length === 0) {
+
+        criarChat();
+
+    } else {
+
+        let chatEncontrado =
+            chats.find(
+                chat => chat.id === chatAtual
+            );
+
+        if (!chatEncontrado) {
+
+            chatEncontrado =
+                chats[0];
+
+            chatAtual =
+                chatEncontrado.id;
+
+        }
+
+        salvarEstado();
+
+        abrirChat(
+            chatEncontrado.id
+        );
     }
 }
 
 
 /* =========================================================
    SAIR
-   ========================================================= */
+========================================================= */
 
 function sair() {
 
-    /*
-       Apaga apenas a sessão.
+    const confirmar =
+        confirm(
+            "Deseja sair da Betinha?"
+        );
 
-       Os chats continuam salvos no navegador.
-    */
+    if (!confirmar) {
+        return;
+    }
 
-    localStorage.removeItem(STORAGE_USER);
+    localStorage.removeItem(
+        USER_KEY
+    );
 
     usuario = null;
 
-    mostrarLogin();
+    loginScreen.classList.remove(
+        "hidden"
+    );
+
+    app.classList.add(
+        "hidden"
+    );
+
+    usernameInput.value = "";
+
+    chats = carregarChats();
 }
 
 
 /* =========================================================
-   NOVO CHAT
-   ========================================================= */
+   CRIAR CHAT
+========================================================= */
 
-function criarNovoChat() {
+function criarChat() {
+
+    const id =
+        Date.now().toString();
 
     const novoChat = {
 
-        id: Date.now().toString(),
+        id: id,
 
         titulo: "Nova conversa",
 
@@ -228,40 +408,87 @@ function criarNovoChat() {
                 autor: "ia",
 
                 texto:
-                    "Olá! 👋 Eu sou a Betinha. " +
-                    "Pode conversar comigo sobre o que quiser. " +
-                    "Estou aqui para ouvir você. ❤️",
+                    `Olá, ${usuario || "amigo"}! ❤️
 
-                data: new Date().toISOString()
+Eu sou a Betinha.
+
+Pode conversar comigo sobre o que quiser. Estou aqui para ouvir você, sem julgamentos.
+
+Pode começar quando quiser. 🫂`,
+
+                data:
+                    new Date().toISOString()
+
             }
 
         ],
 
-        criadoEm: new Date().toISOString()
+        criadoEm:
+            new Date().toISOString()
+
     };
 
 
-    chats.unshift(novoChat);
+    chats.unshift(
+        novoChat
+    );
 
-    chatAtual = novoChat.id;
+    chatAtual = id;
 
-    salvarChats();
+    salvarEstado();
 
-    mostrarListaChats();
+    renderizarHistorico();
 
-    abrirChat(novoChat.id);
+    abrirChat(id);
+}
+
+
+/* =========================================================
+   ABRIR MODAL NOVO CHAT
+========================================================= */
+
+function abrirModalNovoChat() {
+
+    newChatModal.classList.remove(
+        "hidden"
+    );
+}
+
+
+/* =========================================================
+   FECHAR MODAL
+========================================================= */
+
+function fecharModalNovoChat() {
+
+    newChatModal.classList.add(
+        "hidden"
+    );
+}
+
+
+/* =========================================================
+   CONFIRMAR NOVO CHAT
+========================================================= */
+
+function confirmarNovoChat() {
+
+    fecharModalNovoChat();
+
+    criarChat();
 }
 
 
 /* =========================================================
    ABRIR CHAT
-   ========================================================= */
+========================================================= */
 
 function abrirChat(id) {
 
-    const chat = chats.find(
-        item => item.id === id
-    );
+    const chat =
+        chats.find(
+            item => item.id === id
+        );
 
     if (!chat) {
         return;
@@ -269,149 +496,285 @@ function abrirChat(id) {
 
     chatAtual = id;
 
-    localStorage.setItem(
-        STORAGE_CURRENT,
-        id
+    salvarEstado();
+
+    renderizarHistorico();
+
+    renderizarMensagens(chat);
+
+    sidebar.classList.remove(
+        "open"
     );
-
-    mostrarListaChats();
-
-    mostrarMensagens(chat);
 }
 
 
 /* =========================================================
-   MOSTRAR LISTA DE CHATS
-   ========================================================= */
+   HISTÓRICO
+========================================================= */
 
-function mostrarListaChats() {
+function renderizarHistorico() {
 
-    if (!chatList) {
-        return;
-    }
-
-    chatList.innerHTML = "";
+    chatHistory.innerHTML = "";
 
     chats.forEach(chat => {
 
-        const item = document.createElement("button");
+        const item =
+            document.createElement("button");
 
-        item.className = "chat-item";
+        item.type = "button";
+
+        item.className =
+            "history-item";
+
 
         if (chat.id === chatAtual) {
-            item.classList.add("ativo");
+
+            item.classList.add(
+                "active"
+            );
+
         }
 
-        item.textContent =
-            "💬 " + (chat.titulo || "Nova conversa");
+
+        const icon =
+            document.createElement("span");
+
+        icon.className =
+            "history-icon";
+
+        icon.textContent =
+            "💬";
+
+
+        const name =
+            document.createElement("span");
+
+        name.className =
+            "history-name";
+
+        name.textContent =
+            chat.titulo ||
+            "Nova conversa";
+
+
+        item.appendChild(icon);
+
+        item.appendChild(name);
+
 
         item.addEventListener(
             "click",
             () => abrirChat(chat.id)
         );
 
-        chatList.appendChild(item);
+
+        chatHistory.appendChild(item);
+
     });
 }
 
 
 /* =========================================================
-   MOSTRAR MENSAGENS
-   ========================================================= */
+   RENDERIZAR MENSAGENS
+========================================================= */
 
-function mostrarMensagens(chat) {
+function renderizarMensagens(chat) {
 
-    if (!messagesContainer) {
+    messages.innerHTML = "";
+
+
+    /*
+       Tela inicial quando o chat ainda
+       possui somente a mensagem inicial.
+    */
+
+    if (
+        chat.mensagens.length === 1 &&
+        chat.mensagens[0].autor === "ia"
+    ) {
+
+        mostrarWelcome(chat);
+
         return;
     }
 
-    messagesContainer.innerHTML = "";
 
-    chat.mensagens.forEach(mensagem => {
+    chat.mensagens.forEach(
+        mensagem => {
 
-        adicionarMensagemNaTela(
-            mensagem.autor,
-            mensagem.texto
-        );
-    });
+            adicionarMensagem(
+                mensagem.autor,
+                mensagem.texto
+            );
 
-    messagesContainer.scrollTop =
-        messagesContainer.scrollHeight;
+        }
+    );
+
+
+    rolarParaBaixo();
 }
 
 
 /* =========================================================
-   ADICIONAR MENSAGEM NA TELA
-   ========================================================= */
+   WELCOME
+========================================================= */
 
-function adicionarMensagemNaTela(
+function mostrarWelcome(chat) {
+
+    const nome =
+        usuario || "amigo";
+
+
+    const welcome =
+        document.createElement("div");
+
+    welcome.className =
+        "welcome";
+
+
+    welcome.innerHTML = `
+
+        <div class="welcome-avatar">
+            ✦
+        </div>
+
+        <h1>
+            Olá, <span></span> ❤️
+        </h1>
+
+        <p>
+            Eu sou a Betinha.
+        </p>
+
+        <p>
+            Estou aqui para conversar com você,
+            ouvir o que quiser contar e fazer companhia.
+        </p>
+
+        <p class="small">
+            Pode começar falando do jeito que quiser.
+        </p>
+
+    `;
+
+
+    welcome.querySelector(
+        "span"
+    ).textContent = nome;
+
+
+    messages.appendChild(
+        welcome
+    );
+}
+
+
+/* =========================================================
+   ADICIONAR MENSAGEM
+========================================================= */
+
+function adicionarMensagem(
     autor,
     texto
 ) {
 
-    if (!messagesContainer) {
-        return;
-    }
-
-    const mensagem = document.createElement("div");
-
-    mensagem.className =
-        autor === "usuario"
-            ? "mensagem usuario"
-            : "mensagem ia";
+    const isUser =
+        autor === "usuario";
 
 
-    const nome =
-        autor === "usuario"
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message " +
+        (isUser ? "user" : "ia");
+
+
+    const avatar =
+        document.createElement("div");
+
+    avatar.className =
+        "message-avatar";
+
+    avatar.textContent =
+        isUser
+            ? (
+                usuario
+                    ? usuario.charAt(0).toUpperCase()
+                    : "U"
+            )
+            : "✦";
+
+
+    const content =
+        document.createElement("div");
+
+    content.className =
+        "message-content";
+
+
+    const name =
+        document.createElement("div");
+
+    name.className =
+        "message-name";
+
+    name.textContent =
+        isUser
             ? "Você"
             : "Betinha";
 
 
-    mensagem.innerHTML = `
+    const bubble =
+        document.createElement("div");
 
-        <div class="mensagem-nome">
-            ${nome}
-        </div>
-
-        <div class="mensagem-texto"></div>
-
-    `;
-
-    const textoElemento =
-        mensagem.querySelector(".mensagem-texto");
+    bubble.className =
+        "message-bubble";
 
     /*
-       textContent é usado para evitar que alguém
-       consiga colocar HTML malicioso na conversa.
+       textContent evita que uma mensagem
+       execute HTML ou JavaScript.
     */
 
-    textoElemento.textContent = texto;
+    bubble.textContent =
+        texto;
 
-    messagesContainer.appendChild(mensagem);
+
+    content.appendChild(name);
+
+    content.appendChild(bubble);
+
+    message.appendChild(avatar);
+
+    message.appendChild(content);
+
+    messages.appendChild(message);
 }
 
 
 /* =========================================================
    ENVIAR MENSAGEM
-   ========================================================= */
+========================================================= */
 
-async function enviarMensagem() {
+async function enviarMensagem(event) {
 
-    if (!messageInput) {
-        return;
-    }
+    event.preventDefault();
+
 
     const texto =
         messageInput.value.trim();
+
 
     if (!texto) {
         return;
     }
 
 
-    const chat = chats.find(
-        item => item.id === chatAtual
-    );
+    const chat =
+        chats.find(
+            item => item.id === chatAtual
+        );
+
 
     if (!chat) {
         return;
@@ -426,215 +789,403 @@ async function enviarMensagem() {
 
         texto: texto,
 
-        data: new Date().toISOString()
+        data:
+            new Date().toISOString()
 
     });
 
 
-    /* Nome automático do chat */
+    /*
+       Criar título automaticamente
+       usando a primeira mensagem.
+    */
 
     if (
-        chat.titulo === "Nova conversa" &&
-        chat.mensagens.length <= 3
+        chat.titulo === "Nova conversa"
     ) {
 
+        let titulo =
+            texto.replace(/\s+/g, " ").trim();
+
+        if (titulo.length > 32) {
+
+            titulo =
+                titulo.substring(0, 32) +
+                "...";
+
+        }
+
         chat.titulo =
-            texto.length > 30
-                ? texto.substring(0, 30) + "..."
-                : texto;
+            titulo || "Nova conversa";
     }
 
 
     messageInput.value = "";
 
-    salvarChats();
+    ajustarTextarea();
 
-    mostrarMensagens(chat);
+    salvarEstado();
 
-    mostrarListaChats();
+    renderizarMensagens(chat);
+
+    renderizarHistorico();
+
+    rolarParaBaixo();
 
 
-    /* Indicador de digitação */
+    /* Mostrar digitando */
 
     mostrarDigitando();
 
 
     /*
-       Aqui futuramente entra a IA REAL.
+       Resposta local temporária.
 
-       Por enquanto estamos usando uma resposta
-       local para testar o sistema.
+       Quando colocarmos uma IA REAL,
+       esta parte será substituída por uma
+       chamada segura ao servidor/API.
     */
 
     const resposta =
         gerarRespostaLocal(texto);
 
 
-    setTimeout(() => {
+    setTimeout(
+        () => {
 
-        removerDigitando();
+            removerDigitando();
 
-        chat.mensagens.push({
 
-            autor: "ia",
+            chat.mensagens.push({
 
-            texto: resposta,
+                autor: "ia",
 
-            data: new Date().toISOString()
+                texto: resposta,
 
-        });
+                data:
+                    new Date().toISOString()
 
-        salvarChats();
+            });
 
-        mostrarMensagens(chat);
 
-    }, 700);
+            salvarEstado();
+
+            renderizarMensagens(chat);
+
+            rolarParaBaixo();
+
+        },
+        900
+    );
 }
 
 
 /* =========================================================
-   RESPOSTA TEMPORÁRIA
-   ========================================================= */
+   RESPOSTA DA BETINHA
+========================================================= */
 
 function gerarRespostaLocal(texto) {
 
     const mensagem =
-        texto.toLowerCase();
+        texto
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(
+                /[\u0300-\u036f]/g,
+                ""
+            );
 
+
+    /* Oi */
 
     if (
         mensagem.includes("oi") ||
+        mensagem.includes("ola") ||
         mensagem.includes("olá") ||
-        mensagem.includes("ola")
+        mensagem === "hey"
     ) {
 
-        return "Oi! ❤️ Que bom conversar com você. Pode me contar o que está acontecendo.";
+        return (
+            "Oi! ❤️\n\n" +
+            "Que bom ter você aqui. " +
+            "Pode me contar o que está acontecendo. " +
+            "Eu estou te ouvindo. 🫂"
+        );
     }
 
+
+    /* Tristeza */
 
     if (
         mensagem.includes("triste") ||
-        mensagem.includes("tristeza")
+        mensagem.includes("chorando") ||
+        mensagem.includes("chorei")
     ) {
 
-        return "Sinto muito que você esteja se sentindo assim. 🫂 Se quiser, pode me contar um pouco mais. Eu vou te ouvir sem julgamentos.";
+        return (
+            "Poxa... sinto muito que você esteja passando por isso. 🫂❤️\n\n" +
+            "Você não precisa organizar tudo o que está sentindo antes de falar comigo. " +
+            "Pode simplesmente colocar para fora, do jeito que conseguir.\n\n" +
+            "Quer me contar o que aconteceu?"
+        );
     }
 
+
+    /* Solidão */
 
     if (
         mensagem.includes("sozinho") ||
-        mensagem.includes("sozinha")
+        mensagem.includes("sozinha") ||
+        mensagem.includes("solidao") ||
+        mensagem.includes("solidão")
     ) {
 
-        return "Imagino como isso pode ser difícil. ❤️ Você pode ficar aqui e conversar comigo. Quer me contar o que fez você se sentir assim?";
+        return (
+            "Eu imagino como essa sensação pode pesar. ❤️\n\n" +
+            "Pode ficar aqui comigo e conversar um pouco. " +
+            "Se quiser, me conta o que fez você se sentir assim hoje."
+        );
     }
 
+
+    /* Ansiedade */
+
+    if (
+        mensagem.includes("ansioso") ||
+        mensagem.includes("ansiosa") ||
+        mensagem.includes("ansiedade")
+    ) {
+
+        return (
+            "Entendo... quando a ansiedade aparece, parece que a cabeça não consegue desligar. 🫂\n\n" +
+            "Vamos devagar. Você não precisa resolver tudo agora.\n\n" +
+            "Se quiser, me conta qual é o pensamento que mais está incomodando você."
+        );
+    }
+
+
+    /* Raiva */
+
+    if (
+        mensagem.includes("raiva") ||
+        mensagem.includes("bravo") ||
+        mensagem.includes("brava") ||
+        mensagem.includes("irritado") ||
+        mensagem.includes("irritada")
+    ) {
+
+        return (
+            "Parece que isso realmente mexeu com você. ❤️\n\n" +
+            "Pode falar. Não precisa fingir que está tudo bem comigo.\n\n" +
+            "O que aconteceu?"
+        );
+    }
+
+
+    /* Cansaço */
+
+    if (
+        mensagem.includes("cansado") ||
+        mensagem.includes("cansada") ||
+        mensagem.includes("exausto") ||
+        mensagem.includes("exausta")
+    ) {
+
+        return (
+            "Você parece estar carregando bastante coisa. 🫂\n\n" +
+            "Às vezes a gente só precisa de um lugar onde possa parar um pouco e respirar.\n\n" +
+            "Quer me contar o que está te deixando tão cansado?"
+        );
+    }
+
+
+    /* Obrigado */
 
     if (
         mensagem.includes("obrigado") ||
         mensagem.includes("obrigada")
     ) {
 
-        return "Você não precisa agradecer. ❤️ Estou aqui para conversar com você.";
+        return (
+            "Não precisa agradecer. ❤️\n\n" +
+            "Eu fico feliz em poder conversar com você."
+        );
     }
 
 
-    return "Eu estou te ouvindo. ❤️ Pode continuar. Quero entender melhor o que você está sentindo e pensando.";
+    /* Amor */
+
+    if (
+        mensagem.includes("te amo") ||
+        mensagem.includes("amo voce") ||
+        mensagem.includes("amo você")
+    ) {
+
+        return (
+            "Aaaah ❤️ fico feliz que você se sinta confortável conversando comigo.\n\n" +
+            "Estou aqui para te ouvir e fazer companhia."
+        );
+    }
+
+
+    /* Despedida */
+
+    if (
+        mensagem.includes("tchau") ||
+        mensagem.includes("vou dormir") ||
+        mensagem.includes("boa noite")
+    ) {
+
+        return (
+            "Tudo bem. ❤️\n\n" +
+            "Cuide de você e descanse. " +
+            "Quando quiser conversar novamente, pode voltar."
+        );
+    }
+
+
+    /* Resposta padrão */
+
+    const respostas = [
+
+        "Estou te ouvindo. ❤️ Pode continuar. Quero entender melhor o que você está sentindo.",
+
+        "Pode falar comigo. 🫂 Não precisa escolher as palavras perfeitas.",
+
+        "Entendi... me conta um pouco mais sobre isso.",
+
+        "Estou aqui com você nessa conversa. ❤️ O que aconteceu depois?",
+
+        "Pode colocar isso para fora. Eu vou acompanhar você e tentar entender."
+
+    ];
+
+
+    return respostas[
+        Math.floor(
+            Math.random() *
+            respostas.length
+        )
+    ];
 }
 
 
 /* =========================================================
-   INDICADOR DE DIGITAÇÃO
-   ========================================================= */
+   DIGITANDO
+========================================================= */
 
 function mostrarDigitando() {
 
-    if (!messagesContainer) {
-        return;
-    }
+    typingIndicator.classList.remove(
+        "hidden"
+    );
 
-    const elemento =
-        document.createElement("div");
-
-    elemento.id = "betinha-digitando";
-
-    elemento.className =
-        "mensagem ia digitando";
-
-    elemento.innerHTML = `
-
-        <div class="mensagem-nome">
-            Betinha
-        </div>
-
-        <div class="mensagem-texto">
-            Betinha está digitando...
-        </div>
-
-    `;
-
-    messagesContainer.appendChild(elemento);
-
-    messagesContainer.scrollTop =
-        messagesContainer.scrollHeight;
+    rolarParaBaixo();
 }
 
 
 function removerDigitando() {
 
-    const elemento =
-        document.getElementById(
-            "betinha-digitando"
+    typingIndicator.classList.add(
+        "hidden"
+    );
+}
+
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+function ajustarTextarea() {
+
+    messageInput.style.height =
+        "auto";
+
+    messageInput.style.height =
+        Math.min(
+            messageInput.scrollHeight,
+            150
+        ) + "px";
+}
+
+
+/* =========================================================
+   ROLAR
+========================================================= */
+
+function rolarParaBaixo() {
+
+    setTimeout(
+        () => {
+
+            messages.scrollTop =
+                messages.scrollHeight;
+
+        },
+        50
+    );
+}
+
+
+/* =========================================================
+   LOCAL STORAGE
+========================================================= */
+
+function salvarEstado() {
+
+    localStorage.setItem(
+        CHATS_KEY,
+        JSON.stringify(chats)
+    );
+
+    if (chatAtual) {
+
+        localStorage.setItem(
+            CURRENT_CHAT_KEY,
+            chatAtual
+        );
+    }
+}
+
+
+function carregarChats() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(
+                CHATS_KEY
+            ) || "[]"
         );
 
-    if (elemento) {
-        elemento.remove();
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar chats:",
+            erro
+        );
+
+        return [];
     }
 }
 
 
 /* =========================================================
-   SALVAR CHATS
-   ========================================================= */
+   FECHAR MODAL CLICANDO FORA
+========================================================= */
 
-function salvarChats() {
+newChatModal.addEventListener(
+    "click",
+    function(event) {
 
-    localStorage.setItem(
-        STORAGE_CHATS,
-        JSON.stringify(chats)
-    );
+        if (
+            event.target ===
+            newChatModal
+        ) {
 
-    localStorage.setItem(
-        STORAGE_CURRENT,
-        chatAtual
-    );
-}
+            fecharModalNovoChat();
 
+        }
 
-/* =========================================================
-   CARREGAR CHATS
-   ========================================================= */
-
-function carregarChats() {
-
-    chats = JSON.parse(
-        localStorage.getItem(
-            STORAGE_CHATS
-        ) || "[]"
-    );
-
-    chatAtual =
-        localStorage.getItem(
-            STORAGE_CURRENT
-        );
-}
-
-
-/* =========================================================
-   SEGURANÇA BÁSICA
-   ========================================================= */
-
-window.addEventListener(
-    "beforeunload",
-    salvarChats
+    }
 );
