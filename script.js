@@ -1,450 +1,640 @@
-// ==========================================
-// PESQUISA DA VIDA
-// ==========================================
+/* =========================================================
+   BETINHA ❤️
+   Sistema de conversa, login e histórico
+   ========================================================= */
 
-const messages = document.getElementById("messages");
-const input = document.getElementById("userInput");
-const sendButton = document.getElementById("sendButton");
-const nomeUsuario = document.getElementById("nomeUsuario");
-const welcome = document.getElementById("welcome");
+const STORAGE_USER = "betinha_usuario";
+const STORAGE_CHATS = "betinha_chats";
+const STORAGE_CURRENT = "betinha_chat_atual";
 
-let etapa = "nome";
-let nome = "";
+/* =========================================================
+   ELEMENTOS
+   ========================================================= */
+
+const loginScreen = document.getElementById("login-screen");
+const app = document.getElementById("app");
+
+const loginForm = document.getElementById("login-form");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+
+const userNameDisplay = document.getElementById("user-name");
+const logoutButton = document.getElementById("logout");
+
+const newChatButton = document.getElementById("new-chat");
+const chatList = document.getElementById("chat-list");
+
+const messagesContainer = document.getElementById("messages");
+const messageInput = document.getElementById("message-input");
+const sendButton = document.getElementById("send-button");
+
+/* =========================================================
+   DADOS
+   ========================================================= */
+
+let usuario = localStorage.getItem(STORAGE_USER);
+
+let chats = JSON.parse(
+    localStorage.getItem(STORAGE_CHATS) || "[]"
+);
+
+let chatAtual = localStorage.getItem(STORAGE_CURRENT);
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    if (usuario) {
+        entrarNoSite();
+    } else {
+        mostrarLogin();
+    }
+
+    configurarEventos();
+});
 
 
-// ==========================================
-// QUANDO A PÁGINA CARREGAR
-// ==========================================
+/* =========================================================
+   EVENTOS
+   ========================================================= */
 
-window.addEventListener("load", () => {
+function configurarEventos() {
 
-    adicionarMensagem(
-        "assistant",
-        "Olá! 👋 Qual é o seu nome?"
+    if (loginForm) {
+        loginForm.addEventListener("submit", fazerLogin);
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener("click", sair);
+    }
+
+    if (newChatButton) {
+        newChatButton.addEventListener("click", criarNovoChat);
+    }
+
+    if (sendButton) {
+        sendButton.addEventListener("click", enviarMensagem);
+    }
+
+    if (messageInput) {
+
+        messageInput.addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter" && !event.shiftKey) {
+
+                event.preventDefault();
+
+                enviarMensagem();
+            }
+        });
+    }
+}
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+function fazerLogin(event) {
+
+    event.preventDefault();
+
+    const nome = usernameInput
+        ? usernameInput.value.trim()
+        : "";
+
+    const senha = passwordInput
+        ? passwordInput.value
+        : "";
+
+    if (!nome || !senha) {
+
+        alert("Digite seu nome e sua senha.");
+
+        return;
+    }
+
+    /*
+       Por enquanto o login é local.
+
+       Depois podemos colocar um sistema de conta
+       verdadeiro com banco de dados.
+    */
+
+    usuario = nome;
+
+    localStorage.setItem(
+        STORAGE_USER,
+        usuario
     );
 
-    input.focus();
-
-});
-
-
-// ==========================================
-// ENVIAR RESPOSTA
-// ==========================================
-
-function enviarResposta() {
-
-    const resposta = input.value.trim();
-
-    if (resposta === "") {
-        return;
-    }
-
-    // Mostra a resposta do usuário
-    adicionarMensagem("user", resposta);
-
-    // Limpa o campo
-    input.value = "";
-
-    // Processa a resposta
-    processarResposta(resposta);
-
+    entrarNoSite();
 }
 
 
-// ==========================================
-// ENTER TAMBÉM ENVIA
-// ==========================================
+/* =========================================================
+   ENTRAR NO SITE
+   ========================================================= */
 
-input.addEventListener("keydown", function(event) {
+function entrarNoSite() {
 
-    if (event.key === "Enter") {
-
-        event.preventDefault();
-
-        enviarResposta();
-
+    if (loginScreen) {
+        loginScreen.style.display = "none";
     }
 
-});
+    if (app) {
+        app.style.display = "flex";
+    }
 
+    if (userNameDisplay) {
+        userNameDisplay.textContent = usuario;
+    }
 
-// ==========================================
-// PROCESSAR AS RESPOSTAS
-// ==========================================
+    carregarChats();
 
-function processarResposta(resposta) {
+    if (chats.length === 0) {
 
-    const texto = resposta.toLowerCase().trim();
+        criarNovoChat();
 
+    } else {
 
-    // -------------------------------
-    // NOME
-    // -------------------------------
-
-    if (etapa === "nome") {
-
-        nome = resposta;
-
-        nomeUsuario.textContent = nome;
-
-        adicionarMensagem(
-            "assistant",
-            `Prazer em conhecer você, ${nome}! 😄`
+        let encontrado = chats.find(
+            chat => chat.id === chatAtual
         );
 
-        setTimeout(() => {
-
-            adicionarMensagem(
-                "assistant",
-                `Tudo bem com você, ${nome}?`
-            );
-
-            mostrarBotoes([
-                {
-                    texto: "Sim 👍",
-                    valor: "sim"
-                },
-                {
-                    texto: "Não 😕",
-                    valor: "não"
-                }
-            ]);
-
-        }, 500);
-
-        etapa = "tudoBem";
-
-        return;
-    }
-
-
-    // -------------------------------
-    // TUDO BEM?
-    // -------------------------------
-
-    if (etapa === "tudoBem") {
-
-        removerBotoes();
-
-        if (texto === "sim" || texto === "s") {
-
-            adicionarMensagem(
-                "assistant",
-                "Que bom! 😄"
-            );
-
-            setTimeout(() => {
-
-                adicionarMensagem(
-                    "assistant",
-                    "Vamos fazer uma pesquisa da sua vida?"
-                );
-
-                mostrarBotoes([
-                    {
-                        texto: "Sim, vamos! 🚀",
-                        valor: "sim"
-                    },
-                    {
-                        texto: "Não",
-                        valor: "não"
-                    }
-                ]);
-
-            }, 500);
-
-            etapa = "pesquisa";
-
-        } else {
-
-            adicionarMensagem(
-                "assistant",
-                "Vix carambolas! 😰 Espero que as coisas melhorem."
-            );
-
-            setTimeout(() => {
-
-                adicionarMensagem(
-                    "assistant",
-                    "Mesmo assim, se quiser, podemos conversar. ❤️"
-                );
-
-            }, 700);
-
-            etapa = "fim";
-
+        if (!encontrado) {
+            encontrado = chats[0];
+            chatAtual = encontrado.id;
         }
 
+        abrirChat(encontrado.id);
+    }
+}
+
+
+/* =========================================================
+   MOSTRAR LOGIN
+   ========================================================= */
+
+function mostrarLogin() {
+
+    if (loginScreen) {
+        loginScreen.style.display = "flex";
+    }
+
+    if (app) {
+        app.style.display = "none";
+    }
+}
+
+
+/* =========================================================
+   SAIR
+   ========================================================= */
+
+function sair() {
+
+    /*
+       Apaga apenas a sessão.
+
+       Os chats continuam salvos no navegador.
+    */
+
+    localStorage.removeItem(STORAGE_USER);
+
+    usuario = null;
+
+    mostrarLogin();
+}
+
+
+/* =========================================================
+   NOVO CHAT
+   ========================================================= */
+
+function criarNovoChat() {
+
+    const novoChat = {
+
+        id: Date.now().toString(),
+
+        titulo: "Nova conversa",
+
+        mensagens: [
+
+            {
+                autor: "ia",
+
+                texto:
+                    "Olá! 👋 Eu sou a Betinha. " +
+                    "Pode conversar comigo sobre o que quiser. " +
+                    "Estou aqui para ouvir você. ❤️",
+
+                data: new Date().toISOString()
+            }
+
+        ],
+
+        criadoEm: new Date().toISOString()
+    };
+
+
+    chats.unshift(novoChat);
+
+    chatAtual = novoChat.id;
+
+    salvarChats();
+
+    mostrarListaChats();
+
+    abrirChat(novoChat.id);
+}
+
+
+/* =========================================================
+   ABRIR CHAT
+   ========================================================= */
+
+function abrirChat(id) {
+
+    const chat = chats.find(
+        item => item.id === id
+    );
+
+    if (!chat) {
         return;
     }
 
+    chatAtual = id;
 
-    // -------------------------------
-    // QUER FAZER A PESQUISA?
-    // -------------------------------
+    localStorage.setItem(
+        STORAGE_CURRENT,
+        id
+    );
 
-    if (etapa === "pesquisa") {
+    mostrarListaChats();
 
-        removerBotoes();
+    mostrarMensagens(chat);
+}
 
-        if (texto === "sim" || texto === "s") {
 
-            adicionarMensagem(
-                "assistant",
-                "Ok, então vamos começar! 🚀"
-            );
+/* =========================================================
+   MOSTRAR LISTA DE CHATS
+   ========================================================= */
 
-            setTimeout(() => {
+function mostrarListaChats() {
 
-                adicionarMensagem(
-                    "assistant",
-                    "Você é menor de idade?"
-                );
+    if (!chatList) {
+        return;
+    }
 
-                mostrarBotoes([
-                    {
-                        texto: "Sim",
-                        valor: "sim"
-                    },
-                    {
-                        texto: "Não",
-                        valor: "não"
-                    }
-                ]);
+    chatList.innerHTML = "";
 
-            }, 600);
+    chats.forEach(chat => {
 
-            etapa = "menor";
+        const item = document.createElement("button");
 
-        } else {
+        item.className = "chat-item";
 
-            adicionarMensagem(
-                "assistant",
-                "Tudo bem, fica para outra hora! 😄"
-            );
-
-            etapa = "fim";
-
+        if (chat.id === chatAtual) {
+            item.classList.add("ativo");
         }
 
-        return;
-    }
+        item.textContent =
+            "💬 " + (chat.titulo || "Nova conversa");
 
-
-    // -------------------------------
-    // É MENOR?
-    // -------------------------------
-
-    if (etapa === "menor") {
-
-        removerBotoes();
-
-        if (texto === "sim" || texto === "s") {
-
-            adicionarMensagem(
-                "assistant",
-                "Sério? 😮 Deixa eu tentar adivinhar..."
-            );
-
-            setTimeout(() => {
-
-                adicionarMensagem(
-                    "assistant",
-                    "Você tem entre 14 e 15 anos. Acertei?"
-                );
-
-                mostrarBotoes([
-                    {
-                        texto: "Sim 😎",
-                        valor: "sim"
-                    },
-                    {
-                        texto: "Não 😂",
-                        valor: "não"
-                    }
-                ]);
-
-            }, 700);
-
-            etapa = "idade";
-
-        } else {
-
-            adicionarMensagem(
-                "assistant",
-                "Ok, sr. adultão KKKK 😄"
-            );
-
-            setTimeout(() => {
-
-                adicionarMensagem(
-                    "assistant",
-                    "Obrigado por participar da pesquisa! 👍"
-                );
-
-            }, 600);
-
-            etapa = "fim";
-
-        }
-
-        return;
-    }
-
-
-    // -------------------------------
-    // ACERTOU A IDADE?
-    // -------------------------------
-
-    if (etapa === "idade") {
-
-        removerBotoes();
-
-        if (texto === "sim" || texto === "s") {
-
-            adicionarMensagem(
-                "assistant",
-                "KKKK eu sabia! Acertei! 😎"
-            );
-
-        } else {
-
-            adicionarMensagem(
-                "assistant",
-                "Vixx kkk, errei feio! 😂"
-            );
-
-        }
-
-        setTimeout(() => {
-
-            adicionarMensagem(
-                "assistant",
-                "Obrigado por responder! Essa foi só uma brincadeira, beleza? 😄"
-            );
-
-        }, 700);
-
-        etapa = "fim";
-
-        return;
-    }
-
-
-    // -------------------------------
-    // FINALIZADO
-    // -------------------------------
-
-    if (etapa === "fim") {
-
-        adicionarMensagem(
-            "assistant",
-            "A pesquisa já terminou. 😄 Clique em «Nova conversa» para começar novamente."
+        item.addEventListener(
+            "click",
+            () => abrirChat(chat.id)
         );
 
+        chatList.appendChild(item);
+    });
+}
+
+
+/* =========================================================
+   MOSTRAR MENSAGENS
+   ========================================================= */
+
+function mostrarMensagens(chat) {
+
+    if (!messagesContainer) {
+        return;
     }
 
+    messagesContainer.innerHTML = "";
+
+    chat.mensagens.forEach(mensagem => {
+
+        adicionarMensagemNaTela(
+            mensagem.autor,
+            mensagem.texto
+        );
+    });
+
+    messagesContainer.scrollTop =
+        messagesContainer.scrollHeight;
 }
 
 
-// ==========================================
-// ADICIONAR MENSAGEM
-// ==========================================
+/* =========================================================
+   ADICIONAR MENSAGEM NA TELA
+   ========================================================= */
 
-function adicionarMensagem(tipo, texto) {
+function adicionarMensagemNaTela(
+    autor,
+    texto
+) {
 
-    const message = document.createElement("div");
+    if (!messagesContainer) {
+        return;
+    }
 
-    message.className = `message ${tipo}`;
+    const mensagem = document.createElement("div");
 
-
-    const content = document.createElement("div");
-
-    content.className = "message-content";
-
-    content.textContent = texto;
-
-
-    message.appendChild(content);
-
-    messages.appendChild(message);
+    mensagem.className =
+        autor === "usuario"
+            ? "mensagem usuario"
+            : "mensagem ia";
 
 
-    // Rola para a última mensagem
+    const nome =
+        autor === "usuario"
+            ? "Você"
+            : "Betinha";
 
-    messages.scrollTop = messages.scrollHeight;
 
+    mensagem.innerHTML = `
+
+        <div class="mensagem-nome">
+            ${nome}
+        </div>
+
+        <div class="mensagem-texto"></div>
+
+    `;
+
+    const textoElemento =
+        mensagem.querySelector(".mensagem-texto");
+
+    /*
+       textContent é usado para evitar que alguém
+       consiga colocar HTML malicioso na conversa.
+    */
+
+    textoElemento.textContent = texto;
+
+    messagesContainer.appendChild(mensagem);
 }
 
 
-// ==========================================
-// BOTÕES DE RESPOSTA
-// ==========================================
+/* =========================================================
+   ENVIAR MENSAGEM
+   ========================================================= */
 
-function mostrarBotoes(opcoes) {
+async function enviarMensagem() {
 
-    removerBotoes();
+    if (!messageInput) {
+        return;
+    }
 
+    const texto =
+        messageInput.value.trim();
 
-    const container = document.createElement("div");
-
-    container.className = "answer-buttons";
-
-
-    opcoes.forEach(opcao => {
-
-        const button = document.createElement("button");
-
-        button.textContent = opcao.texto;
-
-        button.className = "answer-button";
+    if (!texto) {
+        return;
+    }
 
 
-        button.addEventListener("click", () => {
+    const chat = chats.find(
+        item => item.id === chatAtual
+    );
 
-            input.value = opcao.valor;
-
-            enviarResposta();
-
-        });
+    if (!chat) {
+        return;
+    }
 
 
-        container.appendChild(button);
+    /* Mensagem do usuário */
+
+    chat.mensagens.push({
+
+        autor: "usuario",
+
+        texto: texto,
+
+        data: new Date().toISOString()
 
     });
 
 
-    messages.appendChild(container);
+    /* Nome automático do chat */
 
-    messages.scrollTop = messages.scrollHeight;
+    if (
+        chat.titulo === "Nova conversa" &&
+        chat.mensagens.length <= 3
+    ) {
 
-}
-
-
-// ==========================================
-// REMOVER BOTÕES
-// ==========================================
-
-function removerBotoes() {
-
-    const botoes = document.querySelector(".answer-buttons");
-
-    if (botoes) {
-
-        botoes.remove();
-
+        chat.titulo =
+            texto.length > 30
+                ? texto.substring(0, 30) + "..."
+                : texto;
     }
 
+
+    messageInput.value = "";
+
+    salvarChats();
+
+    mostrarMensagens(chat);
+
+    mostrarListaChats();
+
+
+    /* Indicador de digitação */
+
+    mostrarDigitando();
+
+
+    /*
+       Aqui futuramente entra a IA REAL.
+
+       Por enquanto estamos usando uma resposta
+       local para testar o sistema.
+    */
+
+    const resposta =
+        gerarRespostaLocal(texto);
+
+
+    setTimeout(() => {
+
+        removerDigitando();
+
+        chat.mensagens.push({
+
+            autor: "ia",
+
+            texto: resposta,
+
+            data: new Date().toISOString()
+
+        });
+
+        salvarChats();
+
+        mostrarMensagens(chat);
+
+    }, 700);
 }
 
 
-// ==========================================
-// NOVA CONVERSA
-// ==========================================
+/* =========================================================
+   RESPOSTA TEMPORÁRIA
+   ========================================================= */
 
-function reiniciarConversa() {
+function gerarRespostaLocal(texto) {
 
-    location.reload();
+    const mensagem =
+        texto.toLowerCase();
 
+
+    if (
+        mensagem.includes("oi") ||
+        mensagem.includes("olá") ||
+        mensagem.includes("ola")
+    ) {
+
+        return "Oi! ❤️ Que bom conversar com você. Pode me contar o que está acontecendo.";
+    }
+
+
+    if (
+        mensagem.includes("triste") ||
+        mensagem.includes("tristeza")
+    ) {
+
+        return "Sinto muito que você esteja se sentindo assim. 🫂 Se quiser, pode me contar um pouco mais. Eu vou te ouvir sem julgamentos.";
+    }
+
+
+    if (
+        mensagem.includes("sozinho") ||
+        mensagem.includes("sozinha")
+    ) {
+
+        return "Imagino como isso pode ser difícil. ❤️ Você pode ficar aqui e conversar comigo. Quer me contar o que fez você se sentir assim?";
+    }
+
+
+    if (
+        mensagem.includes("obrigado") ||
+        mensagem.includes("obrigada")
+    ) {
+
+        return "Você não precisa agradecer. ❤️ Estou aqui para conversar com você.";
+    }
+
+
+    return "Eu estou te ouvindo. ❤️ Pode continuar. Quero entender melhor o que você está sentindo e pensando.";
 }
+
+
+/* =========================================================
+   INDICADOR DE DIGITAÇÃO
+   ========================================================= */
+
+function mostrarDigitando() {
+
+    if (!messagesContainer) {
+        return;
+    }
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.id = "betinha-digitando";
+
+    elemento.className =
+        "mensagem ia digitando";
+
+    elemento.innerHTML = `
+
+        <div class="mensagem-nome">
+            Betinha
+        </div>
+
+        <div class="mensagem-texto">
+            Betinha está digitando...
+        </div>
+
+    `;
+
+    messagesContainer.appendChild(elemento);
+
+    messagesContainer.scrollTop =
+        messagesContainer.scrollHeight;
+}
+
+
+function removerDigitando() {
+
+    const elemento =
+        document.getElementById(
+            "betinha-digitando"
+        );
+
+    if (elemento) {
+        elemento.remove();
+    }
+}
+
+
+/* =========================================================
+   SALVAR CHATS
+   ========================================================= */
+
+function salvarChats() {
+
+    localStorage.setItem(
+        STORAGE_CHATS,
+        JSON.stringify(chats)
+    );
+
+    localStorage.setItem(
+        STORAGE_CURRENT,
+        chatAtual
+    );
+}
+
+
+/* =========================================================
+   CARREGAR CHATS
+   ========================================================= */
+
+function carregarChats() {
+
+    chats = JSON.parse(
+        localStorage.getItem(
+            STORAGE_CHATS
+        ) || "[]"
+    );
+
+    chatAtual =
+        localStorage.getItem(
+            STORAGE_CURRENT
+        );
+}
+
+
+/* =========================================================
+   SEGURANÇA BÁSICA
+   ========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    salvarChats
+);
