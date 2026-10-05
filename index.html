@@ -1,43 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <meta name="description"
-        content="Betinha - uma IA criada para conversar, ouvir e acolher você.">
+    <meta name="description" content="Betinha - uma IA para conversar, ouvir e acolher.">
 
     <title>Betinha ❤️</title>
 
+    <!-- ATENÇÃO: o arquivo precisa se chamar style.css -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <!-- =====================================================
-         TELA DE ENTRADA
+         INTRO
     ====================================================== -->
 
     <div id="intro-screen">
 
-        <div class="intro-background"></div>
+        <div class="intro-glow glow-one"></div>
+        <div class="intro-glow glow-two"></div>
 
         <div class="intro-content">
 
-            <div class="intro-symbol">
-                ✦
-            </div>
+            <div class="intro-symbol">✦</div>
 
-            <h1 class="intro-title">
-                BETINHA
-            </h1>
+            <h1>BETINHA</h1>
 
-            <p class="intro-subtitle">
-                Uma IA para conversar, ouvir e acolher.
-            </p>
+            <p>Uma IA para conversar, ouvir e acolher.</p>
 
         </div>
 
@@ -45,22 +37,22 @@
 
 
     <!-- =====================================================
-         TELA DE LOGIN
+         LOGIN
     ====================================================== -->
 
-    <div id="login-screen" class="screen hidden">
+    <section id="login-screen" class="screen hidden">
 
-        <div class="login-box">
+        <div class="login-card">
 
-            <div class="login-logo">
-                ❤️
+            <div class="login-heart">❤️</div>
+
+            <div class="login-brand">
+                BETINHA
             </div>
 
-            <h1>
-                Bem-vindo à Betinha
-            </h1>
+            <h1>Bem-vindo à Betinha</h1>
 
-            <p>
+            <p class="login-description">
                 Antes de começarmos, quero saber como posso chamar você.
             </p>
 
@@ -71,44 +63,48 @@
                 </label>
 
                 <input
-                    type="text"
                     id="username"
-                    name="username"
+                    type="text"
                     placeholder="Digite seu nome..."
-                    autocomplete="name"
                     maxlength="40"
+                    autocomplete="name"
                     required
                 >
 
                 <button type="submit">
                     Entrar
+                    <span>→</span>
                 </button>
 
             </form>
 
-            <p class="login-info">
-                Seu nome será salvo neste navegador para que você não precise
-                fazer login novamente.
+            <p class="login-note">
+                Seu nome fica salvo neste navegador para você não precisar
+                entrar novamente.
             </p>
 
         </div>
 
-    </div>
+    </section>
 
 
     <!-- =====================================================
-         APLICAÇÃO PRINCIPAL
+         APLICAÇÃO
     ====================================================== -->
 
     <div id="app" class="app hidden">
 
+        <!-- FUNDO -->
+        <div class="app-background"></div>
+
+
         <!-- =================================================
-             BARRA LATERAL
+             SIDEBAR
         ================================================== -->
 
         <aside id="sidebar" class="sidebar">
 
-            <div class="sidebar-header">
+            <div class="sidebar-top">
 
                 <div class="brand">
 
@@ -116,94 +112,78 @@
                         ✦
                     </div>
 
-                    <div>
+                    <div class="brand-text">
                         <strong>Betinha</strong>
-
-                        <span>
-                            Sua companhia
-                        </span>
+                        <span>Sua companhia</span>
                     </div>
 
                 </div>
 
                 <button
                     id="close-sidebar"
-                    class="icon-button"
-                    type="button"
-                    aria-label="Fechar menu">
+                    class="close-sidebar"
+                    type="button">
                     ×
                 </button>
 
             </div>
 
 
-            <!-- NOVO CHAT -->
-
             <button
                 id="new-chat"
-                class="new-chat-button"
+                class="new-chat"
                 type="button">
 
-                <span>＋</span>
+                <span class="plus">＋</span>
 
-                <span>
-                    Novo chat
-                </span>
+                <span>Novo chat</span>
 
             </button>
 
 
-            <!-- HISTÓRICO -->
+            <div class="history-title">
+                CONVERSAS
+            </div>
 
-            <div class="history-section">
-
-                <div class="history-title">
-                    Histórico
-                </div>
-
-                <div
-                    id="chat-history"
-                    class="chat-history">
-
-                    <!--
-                        Os chats serão adicionados
-                        automaticamente pelo JavaScript.
-                    -->
-
-                </div>
-
+            <div
+                id="chat-history"
+                class="chat-history">
             </div>
 
 
-            <!-- USUÁRIO -->
+            <div class="sidebar-bottom">
 
-            <div class="sidebar-user">
+                <div class="user-card">
 
-                <div class="user-avatar">
-                    U
+                    <div
+                        id="user-avatar"
+                        class="user-avatar">
+                        B
+                    </div>
+
+                    <div class="user-info">
+
+                        <strong id="sidebar-username">
+                            Usuário
+                        </strong>
+
+                        <span>
+                            Minha conta
+                        </span>
+
+                    </div>
+
+                    <button
+                        id="logout-button"
+                        class="logout-button"
+                        type="button"
+                        title="Sair">
+
+                        ⎋
+
+                    </button>
+
                 </div>
-
-                <div class="user-information">
-
-                    <strong id="sidebar-username">
-                        Usuário
-                    </strong>
-
-                    <span>
-                        Minha conta
-                    </span>
-
-                </div>
-
-                <button
-                    id="logout-button"
-                    class="logout-button"
-                    type="button"
-                    title="Sair">
-
-                    ⎋
-
-                </button>
 
             </div>
 
@@ -211,12 +191,13 @@
 
 
         <!-- =================================================
-             ÁREA PRINCIPAL DO CHAT
+             CHAT
         ================================================== -->
 
         <main class="chat-area">
 
-            <!-- CABEÇALHO -->
+
+            <!-- HEADER -->
 
             <header class="chat-header">
 
@@ -225,14 +206,11 @@
                     <button
                         id="open-sidebar"
                         class="menu-button"
-                        type="button"
-                        aria-label="Abrir menu">
-
+                        type="button">
                         ☰
-
                     </button>
 
-                    <div class="header-betinha">
+                    <div class="betinha-profile">
 
                         <div class="header-avatar">
                             ✦
@@ -240,12 +218,11 @@
 
                         <div>
 
-                            <strong>
-                                Betinha
-                            </strong>
+                            <strong>Betinha</strong>
 
                             <span>
-                                ● online
+                                <i></i>
+                                online
                             </span>
 
                         </div>
@@ -255,73 +232,33 @@
                 </div>
 
 
-                <div class="header-actions">
+                <button
+                    id="header-new-chat"
+                    class="header-new-chat"
+                    type="button"
+                    title="Novo chat">
 
-                    <button
-                        id="header-new-chat"
-                        class="header-action"
-                        type="button"
-                        title="Novo chat">
+                    ＋
 
-                        ＋
-
-                    </button>
-
-                </div>
+                </button>
 
             </header>
 
 
-            <!-- =================================================
-                 MENSAGENS
-            ================================================== -->
+            <!-- MENSAGENS -->
 
             <section
                 id="messages"
-                class="messages"
-                aria-live="polite">
-
-                <!--
-                    MENSAGEM INICIAL
-                -->
-
-                <div
-                    id="welcome-message"
-                    class="welcome-container">
-
-                    <div class="welcome-avatar">
-                        ✦
-                    </div>
-
-                    <h1>
-                        Olá, <span id="welcome-name">amigo</span> ❤️
-                    </h1>
-
-                    <p>
-                        Eu sou a Betinha.
-                    </p>
-
-                    <p>
-                        Estou aqui para conversar com você,
-                        ouvir o que quiser contar e fazer companhia.
-                    </p>
-
-                    <p class="welcome-small">
-                        Pode começar falando do jeito que quiser.
-                    </p>
-
-                </div>
+                class="messages">
 
             </section>
 
 
-            <!-- =================================================
-                 INDICADOR DE DIGITAÇÃO
-            ================================================== -->
+            <!-- DIGITANDO -->
 
             <div
                 id="typing-indicator"
-                class="typing-indicator hidden">
+                class="typing hidden">
 
                 <div class="message-avatar">
                     ✦
@@ -338,9 +275,7 @@
             </div>
 
 
-            <!-- =================================================
-                 ÁREA DE DIGITAÇÃO
-            ================================================== -->
+            <!-- ÁREA DE TEXTO -->
 
             <div class="input-area">
 
@@ -350,27 +285,24 @@
 
                     <textarea
                         id="message-input"
-                        placeholder="Converse com a Betinha..."
                         rows="1"
                         maxlength="4000"
+                        placeholder="Converse com a Betinha..."
                         autocomplete="off"></textarea>
 
                     <button
                         id="send-button"
                         type="submit"
-                        aria-label="Enviar mensagem">
+                        title="Enviar">
 
-                        ➤
+                        ↑
 
                     </button>
 
                 </form>
 
-                <div class="input-disclaimer">
-
-                    A Betinha é uma IA e não substitui profissionais
-                    de saúde ou serviços de emergência.
-
+                <div class="input-bottom">
+                    A Betinha é uma IA. Ela pode cometer erros.
                 </div>
 
             </div>
@@ -381,112 +313,46 @@
 
 
     <!-- =====================================================
-         MODAL DE CONFIRMAÇÃO DE NOVO CHAT
+         MODAL NOVO CHAT
     ====================================================== -->
 
     <div
         id="new-chat-modal"
         class="modal hidden">
 
-        <div class="modal-box">
+        <div class="modal-card">
 
             <button
                 id="close-modal"
                 class="modal-close"
                 type="button">
-
                 ×
-
             </button>
 
             <div class="modal-icon">
                 💬
             </div>
 
-            <h2>
-                Começar uma nova conversa?
-            </h2>
+            <h2>Começar uma nova conversa?</h2>
 
             <p>
-                A conversa atual continuará disponível no seu histórico.
+                A conversa atual continuará salva no seu histórico.
             </p>
 
             <div class="modal-buttons">
 
                 <button
                     id="cancel-new-chat"
-                    class="secondary-button"
+                    class="button-secondary"
                     type="button">
-
                     Cancelar
-
                 </button>
 
                 <button
                     id="confirm-new-chat"
-                    class="primary-button"
+                    class="button-primary"
                     type="button">
-
                     Novo chat
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         MODAL DE EXCLUSÃO
-    ====================================================== -->
-
-    <div
-        id="delete-modal"
-        class="modal hidden">
-
-        <div class="modal-box">
-
-            <button
-                id="close-delete-modal"
-                class="modal-close"
-                type="button">
-
-                ×
-
-            </button>
-
-            <div class="modal-icon">
-                🗑️
-            </div>
-
-            <h2>
-                Excluir conversa?
-            </h2>
-
-            <p>
-                Essa conversa será removida do histórico deste navegador.
-            </p>
-
-            <div class="modal-buttons">
-
-                <button
-                    id="cancel-delete"
-                    class="secondary-button"
-                    type="button">
-
-                    Cancelar
-
-                </button>
-
-                <button
-                    id="confirm-delete"
-                    class="danger-button"
-                    type="button">
-
-                    Excluir
-
                 </button>
 
             </div>
@@ -503,5 +369,4 @@
     <script src="script.js"></script>
 
 </body>
-
 </html>
