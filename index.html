@@ -1,92 +1,186 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
 
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Pesquisa da Vida</title>
+    <meta name="description"
+          content="Betinha - uma IA criada para conversar, acolher e ouvir você.">
+
+    <title>Betinha ❤️</title>
 
     <link rel="stylesheet" href="estilo.css">
 </head>
 
 <body>
 
-    <div class="app">
+    <!-- =========================================
+         TELA DE ENTRADA
+    ========================================== -->
+
+    <div id="intro" class="intro">
+
+        <div class="intro-content">
+
+            <div class="intro-particles"></div>
+
+            <div class="intro-symbol">
+                ✦
+            </div>
+
+            <h1 class="intro-title">
+                BETINHA
+            </h1>
+
+            <p class="intro-subtitle">
+                uma conversa que acolhe
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         LOGIN
+    ========================================== -->
+
+    <section id="login-screen" class="login-screen hidden">
+
+        <div class="login-card">
+
+            <div class="login-logo">
+                ✦
+            </div>
+
+            <h1>Betinha</h1>
+
+            <p>
+                Entre para começar uma conversa.
+            </p>
+
+            <form id="login-form">
+
+                <label for="login-name">
+                    Como posso chamar você?
+                </label>
+
+                <input
+                    id="login-name"
+                    type="text"
+                    placeholder="Digite seu nome..."
+                    autocomplete="name"
+                    required
+                >
+
+                <label for="login-password">
+                    Senha
+                </label>
+
+                <input
+                    id="login-password"
+                    type="password"
+                    placeholder="Digite uma senha..."
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit" class="login-button">
+                    Entrar
+                </button>
+
+            </form>
+
+            <p class="login-info">
+                Seus dados ficam salvos neste dispositivo.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         APLICATIVO
+    ========================================== -->
+
+    <div id="app" class="app hidden">
 
         <!-- BARRA LATERAL -->
 
         <aside class="sidebar">
 
-            <div class="logo">
+            <div class="sidebar-top">
 
-                <div class="logo-icon">
-                    ✦
+                <div class="brand">
+
+                    <div class="brand-icon">
+                        ✦
+                    </div>
+
+                    <span>
+                        Betinha
+                    </span>
+
                 </div>
 
-                <span>
-                    Pesquisa da Vida
-                </span>
 
-            </div>
-
-
-            <button class="new-chat"
-                    onclick="reiniciarConversa()">
-
-                <span>＋</span>
-
-                Nova conversa
-
-            </button>
+                <button
+                    id="new-chat"
+                    class="new-chat"
+                    type="button"
+                >
+                    <span>＋</span>
+                    Novo chat
+                </button>
 
 
-            <div class="sidebar-title">
-                Conversas
-            </div>
+                <div class="history-title">
+                    Histórico
+                </div>
 
-
-            <div class="conversation active">
-
-                <span>💬</span>
-
-                Pesquisa da vida
-
-            </div>
-
-
-            <div class="conversation">
-
-                <span>💬</span>
-
-                Nova conversa
+                <div
+                    id="chat-history"
+                    class="chat-history"
+                >
+                    <!-- Os chats aparecem aqui -->
+                </div>
 
             </div>
 
 
             <div class="sidebar-bottom">
 
-                <div class="user-profile">
+                <div class="user-box">
 
-                    <div class="avatar">
+                    <div class="user-avatar" id="user-avatar">
                         U
                     </div>
 
-                    <div>
+                    <div class="user-info">
 
-                        <strong id="nomeUsuario">
+                        <strong id="user-name">
                             Usuário
                         </strong>
 
-                        <small>
+                        <span>
                             Minha conta
-                        </small>
+                        </span>
 
                     </div>
 
                 </div>
+
+
+                <button
+                    id="logout-button"
+                    class="logout-button"
+                    type="button"
+                >
+                    Sair
+                </button>
 
             </div>
 
@@ -95,8 +189,7 @@
 
         <!-- ÁREA PRINCIPAL -->
 
-        <main class="chat">
-
+        <main class="chat-area">
 
             <!-- CABEÇALHO -->
 
@@ -104,19 +197,23 @@
 
                 <div>
 
-                    <h1>
-                        Pesquisa da vida
-                    </h1>
+                    <div class="chat-title">
+                        Betinha
+                    </div>
 
-                    <p>
-                        Converse e responda às perguntas
-                    </p>
+                    <div class="chat-status">
+                        <span class="status-dot"></span>
+                        Online
+                    </div>
 
                 </div>
 
-
-                <button class="menu-button">
-                    ⋯
+                <button
+                    id="mobile-menu"
+                    class="mobile-menu"
+                    type="button"
+                >
+                    ☰
                 </button>
 
             </header>
@@ -125,24 +222,28 @@
             <!-- MENSAGENS -->
 
             <section
-                class="messages"
                 id="messages"
+                class="messages"
             >
 
-                <div class="welcome"
-                     id="welcome">
+                <div class="welcome">
 
                     <div class="welcome-icon">
-                        ✦
+                        ❤️
                     </div>
 
-                    <h2>
+                    <h1>
                         Olá! 👋
-                    </h2>
+                    </h1>
 
                     <p>
-                        Vamos conversar um pouco?
-                        Responda às perguntas abaixo.
+                        Eu sou a Betinha.
+                    </p>
+
+                    <p>
+                        Estou aqui para conversar com você,
+                        ouvir o que você quiser contar e
+                        ficar ao seu lado durante a conversa.
                     </p>
 
                 </div>
@@ -150,38 +251,34 @@
             </section>
 
 
-            <!-- CAMPO DE RESPOSTA -->
+            <!-- DIGITAÇÃO -->
 
             <div class="input-area">
 
-                <div class="input-box">
+                <form id="message-form" class="message-form">
 
-                    <input
-                        type="text"
-                        id="userInput"
-                        placeholder="Digite sua resposta..."
+                    <textarea
+                        id="message-input"
+                        rows="1"
+                        placeholder="Converse comigo..."
                         autocomplete="off"
-                    >
+                    ></textarea>
 
                     <button
-                        id="sendButton"
-                        onclick="enviarResposta()"
+                        id="send-button"
+                        type="submit"
+                        aria-label="Enviar mensagem"
                     >
                         ➤
                     </button>
 
+                </form>
+
+                <div class="input-warning">
+                    A Betinha é uma IA e não substitui profissionais de saúde.
                 </div>
 
-
-                <p class="disclaimer">
-
-                    Responda às perguntas da forma que
-                    achar melhor.
-
-                </p>
-
             </div>
-
 
         </main>
 
@@ -193,5 +290,4 @@
     <script src="script.js"></script>
 
 </body>
-
 </html>
