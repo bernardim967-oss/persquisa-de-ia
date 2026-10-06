@@ -1,15 +1,6 @@
 /* =========================================================
    BETINHA ❤️
    SCRIPT.JS
-
-   Este arquivo funciona junto com:
-   index.html
-   style.css
-========================================================= */
-
-
-/* =========================================================
-   CONFIGURAÇÃO
 ========================================================= */
 
 const USER_KEY = "betinha_usuario";
@@ -119,11 +110,6 @@ function iniciar() {
 
     configurarEventos();
 
-    /*
-       A intro fica alguns segundos.
-       Depois mostramos login ou aplicativo.
-    */
-
     setTimeout(() => {
 
         if (usuario) {
@@ -146,23 +132,15 @@ function iniciar() {
 
 function configurarEventos() {
 
-    /* LOGIN */
-
     loginForm.addEventListener(
         "submit",
         fazerLogin
     );
 
-
-    /* CHAT */
-
     messageForm.addEventListener(
         "submit",
         enviarMensagem
     );
-
-
-    /* NOVO CHAT */
 
     newChatButton.addEventListener(
         "click",
@@ -173,9 +151,6 @@ function configurarEventos() {
         "click",
         abrirModalNovoChat
     );
-
-
-    /* MODAL */
 
     closeModalButton.addEventListener(
         "click",
@@ -192,9 +167,6 @@ function configurarEventos() {
         confirmarNovoChat
     );
 
-
-    /* SIDEBAR */
-
     openSidebarButton.addEventListener(
         "click",
         () => {
@@ -209,16 +181,10 @@ function configurarEventos() {
         }
     );
 
-
-    /* LOGOUT */
-
     logoutButton.addEventListener(
         "click",
         sair
     );
-
-
-    /* ENTER */
 
     messageInput.addEventListener(
         "keydown",
@@ -236,9 +202,6 @@ function configurarEventos() {
 
         }
     );
-
-
-    /* ALTURA DO TEXTAREA */
 
     messageInput.addEventListener(
         "input",
@@ -298,14 +261,8 @@ function mostrarAplicativo() {
 
     app.classList.remove("hidden");
 
-
-    /* Nome */
-
     sidebarUsername.textContent =
         usuario || "Usuário";
-
-
-    /* Avatar */
 
     if (usuario) {
 
@@ -315,12 +272,6 @@ function mostrarAplicativo() {
                 .toUpperCase();
 
     }
-
-
-    /*
-       Se ainda não existir nenhuma conversa,
-       criamos automaticamente.
-    */
 
     if (chats.length === 0) {
 
@@ -428,7 +379,6 @@ Pode começar quando quiser. 🫂`,
 
     };
 
-
     chats.unshift(
         novoChat
     );
@@ -444,7 +394,7 @@ Pode começar quando quiser. 🫂`,
 
 
 /* =========================================================
-   ABRIR MODAL NOVO CHAT
+   MODAL
 ========================================================= */
 
 function abrirModalNovoChat() {
@@ -455,10 +405,6 @@ function abrirModalNovoChat() {
 }
 
 
-/* =========================================================
-   FECHAR MODAL
-========================================================= */
-
 function fecharModalNovoChat() {
 
     newChatModal.classList.add(
@@ -466,10 +412,6 @@ function fecharModalNovoChat() {
     );
 }
 
-
-/* =========================================================
-   CONFIRMAR NOVO CHAT
-========================================================= */
 
 function confirmarNovoChat() {
 
@@ -526,7 +468,6 @@ function renderizarHistorico() {
         item.className =
             "history-item";
 
-
         if (chat.id === chatAtual) {
 
             item.classList.add(
@@ -534,7 +475,6 @@ function renderizarHistorico() {
             );
 
         }
-
 
         const icon =
             document.createElement("span");
@@ -544,7 +484,6 @@ function renderizarHistorico() {
 
         icon.textContent =
             "💬";
-
 
         const name =
             document.createElement("span");
@@ -556,17 +495,14 @@ function renderizarHistorico() {
             chat.titulo ||
             "Nova conversa";
 
-
         item.appendChild(icon);
 
         item.appendChild(name);
-
 
         item.addEventListener(
             "click",
             () => abrirChat(chat.id)
         );
-
 
         chatHistory.appendChild(item);
 
@@ -582,12 +518,6 @@ function renderizarMensagens(chat) {
 
     messages.innerHTML = "";
 
-
-    /*
-       Tela inicial quando o chat ainda
-       possui somente a mensagem inicial.
-    */
-
     if (
         chat.mensagens.length === 1 &&
         chat.mensagens[0].autor === "ia"
@@ -597,7 +527,6 @@ function renderizarMensagens(chat) {
 
         return;
     }
-
 
     chat.mensagens.forEach(
         mensagem => {
@@ -609,7 +538,6 @@ function renderizarMensagens(chat) {
 
         }
     );
-
 
     rolarParaBaixo();
 }
@@ -624,13 +552,11 @@ function mostrarWelcome(chat) {
     const nome =
         usuario || "amigo";
 
-
     const welcome =
         document.createElement("div");
 
     welcome.className =
         "welcome";
-
 
     welcome.innerHTML = `
 
@@ -657,11 +583,9 @@ function mostrarWelcome(chat) {
 
     `;
 
-
     welcome.querySelector(
         "span"
     ).textContent = nome;
-
 
     messages.appendChild(
         welcome
@@ -681,14 +605,12 @@ function adicionarMensagem(
     const isUser =
         autor === "usuario";
 
-
     const message =
         document.createElement("div");
 
     message.className =
         "message " +
         (isUser ? "user" : "ia");
-
 
     const avatar =
         document.createElement("div");
@@ -705,13 +627,11 @@ function adicionarMensagem(
             )
             : "✦";
 
-
     const content =
         document.createElement("div");
 
     content.className =
         "message-content";
-
 
     const name =
         document.createElement("div");
@@ -724,21 +644,14 @@ function adicionarMensagem(
             ? "Você"
             : "Betinha";
 
-
     const bubble =
         document.createElement("div");
 
     bubble.className =
         "message-bubble";
 
-    /*
-       textContent evita que uma mensagem
-       execute HTML ou JavaScript.
-    */
-
     bubble.textContent =
         texto;
-
 
     content.appendChild(name);
 
@@ -753,35 +666,33 @@ function adicionarMensagem(
 
 
 /* =========================================================
-   ENVIAR MENSAGEM
+   ENVIAR MENSAGEM PARA A IA
 ========================================================= */
 
 async function enviarMensagem(event) {
 
     event.preventDefault();
 
-
     const texto =
         messageInput.value.trim();
-
 
     if (!texto) {
         return;
     }
-
 
     const chat =
         chats.find(
             item => item.id === chatAtual
         );
 
-
     if (!chat) {
         return;
     }
 
 
-    /* Mensagem do usuário */
+    /* =========================================
+       MENSAGEM DO USUÁRIO
+    ========================================= */
 
     chat.mensagens.push({
 
@@ -795,17 +706,18 @@ async function enviarMensagem(event) {
     });
 
 
-    /*
-       Criar título automaticamente
-       usando a primeira mensagem.
-    */
+    /* =========================================
+       TÍTULO DO CHAT
+    ========================================= */
 
     if (
         chat.titulo === "Nova conversa"
     ) {
 
         let titulo =
-            texto.replace(/\s+/g, " ").trim();
+            texto
+                .replace(/\s+/g, " ")
+                .trim();
 
         if (titulo.length > 32) {
 
@@ -833,240 +745,143 @@ async function enviarMensagem(event) {
     rolarParaBaixo();
 
 
-    /* Mostrar digitando */
+    /* =========================================
+       MOSTRAR "BETINHA ESTÁ DIGITANDO"
+    ========================================= */
 
     mostrarDigitando();
 
 
-    /*
-       Resposta local temporária.
+    try {
 
-       Quando colocarmos uma IA REAL,
-       esta parte será substituída por uma
-       chamada segura ao servidor/API.
-    */
+        /*
+           Transformamos o histórico da Betinha
+           no formato que a API entende.
+        */
 
-    const resposta =
-        gerarRespostaLocal(texto);
+        const mensagensParaIA =
+            chat.mensagens
+                .slice(-30)
+                .map(mensagem => ({
 
+                    role:
+                        mensagem.autor === "usuario"
+                            ? "user"
+                            : "assistant",
 
-    setTimeout(
-        () => {
+                    content:
+                        mensagem.texto
 
-            removerDigitando();
-
-
-            chat.mensagens.push({
-
-                autor: "ia",
-
-                texto: resposta,
-
-                data:
-                    new Date().toISOString()
-
-            });
+                }));
 
 
-            salvarEstado();
+        /* =====================================
+           CHAMADA PARA NOSSO BACKEND
+        ===================================== */
 
-            renderizarMensagens(chat);
+        const resposta =
+            await fetch(
+                "/api/chat",
+                {
 
-            rolarParaBaixo();
+                    method: "POST",
 
-        },
-        900
-    );
-}
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
+                    body:
+                        JSON.stringify({
+                            messages:
+                                mensagensParaIA
+                        })
 
-/* =========================================================
-   RESPOSTA DA BETINHA
-========================================================= */
-
-function gerarRespostaLocal(texto) {
-
-    const mensagem =
-        texto
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(
-                /[\u0300-\u036f]/g,
-                ""
+                }
             );
 
 
-    /* Oi */
+        const dados =
+            await resposta.json();
 
-    if (
-        mensagem.includes("oi") ||
-        mensagem.includes("ola") ||
-        mensagem.includes("olá") ||
-        mensagem === "hey"
-    ) {
 
-        return (
-            "Oi! ❤️\n\n" +
-            "Que bom ter você aqui. " +
-            "Pode me contar o que está acontecendo. " +
-            "Eu estou te ouvindo. 🫂"
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.error ||
+                "Erro ao conversar com a IA."
+            );
+        }
+
+
+        const textoResposta =
+            dados.response;
+
+
+        if (!textoResposta) {
+
+            throw new Error(
+                "A IA não retornou uma resposta."
+            );
+        }
+
+
+        /* =====================================
+           ADICIONAR RESPOSTA DA BETINHA
+        ===================================== */
+
+        chat.mensagens.push({
+
+            autor: "ia",
+
+            texto: textoResposta,
+
+            data:
+                new Date().toISOString()
+
+        });
+
+
+        salvarEstado();
+
+        removerDigitando();
+
+        renderizarMensagens(chat);
+
+        rolarParaBaixo();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao chamar a IA:",
+            erro
         );
+
+
+        removerDigitando();
+
+
+        chat.mensagens.push({
+
+            autor: "ia",
+
+            texto:
+                "Desculpa, tive um problema para me conectar à minha IA agora. 😕\n\n" +
+                "Verifique se a API está configurada corretamente na Vercel e tente novamente.",
+
+            data:
+                new Date().toISOString()
+
+        });
+
+
+        salvarEstado();
+
+        renderizarMensagens(chat);
+
+        rolarParaBaixo();
     }
-
-
-    /* Tristeza */
-
-    if (
-        mensagem.includes("triste") ||
-        mensagem.includes("chorando") ||
-        mensagem.includes("chorei")
-    ) {
-
-        return (
-            "Poxa... sinto muito que você esteja passando por isso. 🫂❤️\n\n" +
-            "Você não precisa organizar tudo o que está sentindo antes de falar comigo. " +
-            "Pode simplesmente colocar para fora, do jeito que conseguir.\n\n" +
-            "Quer me contar o que aconteceu?"
-        );
-    }
-
-
-    /* Solidão */
-
-    if (
-        mensagem.includes("sozinho") ||
-        mensagem.includes("sozinha") ||
-        mensagem.includes("solidao") ||
-        mensagem.includes("solidão")
-    ) {
-
-        return (
-            "Eu imagino como essa sensação pode pesar. ❤️\n\n" +
-            "Pode ficar aqui comigo e conversar um pouco. " +
-            "Se quiser, me conta o que fez você se sentir assim hoje."
-        );
-    }
-
-
-    /* Ansiedade */
-
-    if (
-        mensagem.includes("ansioso") ||
-        mensagem.includes("ansiosa") ||
-        mensagem.includes("ansiedade")
-    ) {
-
-        return (
-            "Entendo... quando a ansiedade aparece, parece que a cabeça não consegue desligar. 🫂\n\n" +
-            "Vamos devagar. Você não precisa resolver tudo agora.\n\n" +
-            "Se quiser, me conta qual é o pensamento que mais está incomodando você."
-        );
-    }
-
-
-    /* Raiva */
-
-    if (
-        mensagem.includes("raiva") ||
-        mensagem.includes("bravo") ||
-        mensagem.includes("brava") ||
-        mensagem.includes("irritado") ||
-        mensagem.includes("irritada")
-    ) {
-
-        return (
-            "Parece que isso realmente mexeu com você. ❤️\n\n" +
-            "Pode falar. Não precisa fingir que está tudo bem comigo.\n\n" +
-            "O que aconteceu?"
-        );
-    }
-
-
-    /* Cansaço */
-
-    if (
-        mensagem.includes("cansado") ||
-        mensagem.includes("cansada") ||
-        mensagem.includes("exausto") ||
-        mensagem.includes("exausta")
-    ) {
-
-        return (
-            "Você parece estar carregando bastante coisa. 🫂\n\n" +
-            "Às vezes a gente só precisa de um lugar onde possa parar um pouco e respirar.\n\n" +
-            "Quer me contar o que está te deixando tão cansado?"
-        );
-    }
-
-
-    /* Obrigado */
-
-    if (
-        mensagem.includes("obrigado") ||
-        mensagem.includes("obrigada")
-    ) {
-
-        return (
-            "Não precisa agradecer. ❤️\n\n" +
-            "Eu fico feliz em poder conversar com você."
-        );
-    }
-
-
-    /* Amor */
-
-    if (
-        mensagem.includes("te amo") ||
-        mensagem.includes("amo voce") ||
-        mensagem.includes("amo você")
-    ) {
-
-        return (
-            "Aaaah ❤️ fico feliz que você se sinta confortável conversando comigo.\n\n" +
-            "Estou aqui para te ouvir e fazer companhia."
-        );
-    }
-
-
-    /* Despedida */
-
-    if (
-        mensagem.includes("tchau") ||
-        mensagem.includes("vou dormir") ||
-        mensagem.includes("boa noite")
-    ) {
-
-        return (
-            "Tudo bem. ❤️\n\n" +
-            "Cuide de você e descanse. " +
-            "Quando quiser conversar novamente, pode voltar."
-        );
-    }
-
-
-    /* Resposta padrão */
-
-    const respostas = [
-
-        "Estou te ouvindo. ❤️ Pode continuar. Quero entender melhor o que você está sentindo.",
-
-        "Pode falar comigo. 🫂 Não precisa escolher as palavras perfeitas.",
-
-        "Entendi... me conta um pouco mais sobre isso.",
-
-        "Estou aqui com você nessa conversa. ❤️ O que aconteceu depois?",
-
-        "Pode colocar isso para fora. Eu vou acompanhar você e tentar entender."
-
-    ];
-
-
-    return respostas[
-        Math.floor(
-            Math.random() *
-            respostas.length
-        )
-    ];
 }
 
 
